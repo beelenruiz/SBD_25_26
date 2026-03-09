@@ -10,3 +10,5 @@ Repositorio con los ejemplos de clase de Sistemas de Big Data
 **24/11/2025** Añadidos los ficheros para ejecutar el ejemplo de Apache Pinot.
 
 **29/01/2026** Añadido ejemplo de Apache NiFi
+
+**09/03/2026** Añadido ejemplo de R

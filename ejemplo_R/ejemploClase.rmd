@@ -1,0 +1,126 @@
+---
+title: "Notas de clase"
+author: "Sistemas de Big Data"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+---
+
+```{r, echo=FALSE}
+knitr::include_graphics("LogoInsti4.png")
+```
+
+
+## Introducción
+
+Este es el informe de prueba de clase de **Big Data**
+
+## Tabla de notas
+
+A continuación la tabla leída
+
+```{r mostar_tabla, echo=FALSE, warning=FALSE, message=FALSE}
+datatable(datos_clase,
+          options = list(
+            pageLength = 5,
+            language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+            )
+          )
+```
+## Visualización de Datos {.tabset .tabset-fade .tabset-pills}
+### Gráfico de clase
+A continuación un gráfico con el rendimiento de la clase
+
+```{r grafico_clase, echo=FALSE, warning=FALSE, message=FALSE}
+# 1. Creamos el gráfico estático con ggplot2
+grafico_base <- ggplot(datos_clase, aes(x = reorder(Alumno, Nota_Media), y = Nota_Media, fill = Nota_Media)) +
+  geom_col() +
+  coord_flip() + # Giramos el gráfico para que sea horizontal
+  theme_minimal() + # Un tema limpio y moderno
+  scale_fill_viridis_c() + # Una paleta de colores profesional
+  labs(
+    title = "Ranking de Nota Media por Alumno",
+    x = "", # Dejamos el eje X sin título porque ya sabemos que son alumnos
+    y = "Nota Media Final",
+    fill = "Nota"
+  )
+
+# 2. Lo convertimos en un gráfico interactivo con plotly
+ggplotly(grafico_base, tooltip = c("x", "y"))
+
+# 3. Guardamos el grafico como imagen
+ggsave("graficoNotas.png",grafico_base)
+```
+
+### Relación entre notas
+
+Aquí vamos a ver una ecuación y otro gráfico
+
+La ecuación de la correlación es: ($r$).
+
+$$r=\frac{\sum(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum(x_i-\bar{x})^2\sum(y_i-\bar{y})^2}}$$
+### 4. Gráfica de violín
+
+Aquí podemos ver todas las desviaciones de las asignaturas:
+
+```{r grafico_violin, echo=FALSE, warning=FALSE, message=FALSE}
+
+ggplot(datos_violin, aes(x = Asignatura, y = Nota)) +
+  geom_violin(fill = "lightblue", alpha = 0.6) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_boxplot(width = 0.1, fill="white") +
+  geom_jitter(width = 0.1, alpha = 0.5) +
+  labs (
+    title="Distribución de notas por asignatura",
+    x = "Asignatura",
+    Y = "Nota"
+  )
+
+```
+### Aprobados vs Suspensos (Tarta)
+Veamos la proporción de alumnos que han superado el curso según su nota media.
+```{r grafico-tarta, echo=FALSE, warning=FALSE, message=FALSE}
+# Para gráficos circulares interactivos, plotly directo es la mejor opción
+plot_ly(conteo_estados, 
+        labels = ~Estado, 
+        values = ~Cantidad, 
+        type = 'pie',
+        textinfo = 'label+percent',
+        hoverinfo = 'text',
+        text = ~paste(Cantidad, "alumnos"),
+        marker = list(colors = c("#2ecc71", "#e74c3c"))) %>% 
+  layout(title = "Porcentaje de Aprobados y Suspensos")
+```
+### Rendimiento (Barra)
+```{r grafico-rendimiento, echo=FALSE, message=FALSE, warning=FALSE}
+grafico_base <- ggplot(datos_clase, aes(x = reorder(Alumno, Nota_Media), y = Nota_Media, fill = Nota_Media)) +
+  geom_col() + coord_flip() + theme_minimal() + scale_fill_viridis_c() +
+  labs(x = "", y = "Nota Media Final", fill = "Nota")
+
+ggplotly(grafico_base, tooltip = c("x", "y"))
+```
+### Relación  (Dispersión)
+```{r grafico-relacion2, echo=FALSE, message=FALSE, warning=FALSE}
+grafico_dispersion <- ggplot(datos_clase, aes(x = Matematicas, y = Ciencias)) +
+  geom_point(color = "#2c3e50", size = 3) +
+  geom_smooth(method = "lm", color = "#e74c3c", se = FALSE) +
+  theme_minimal() +
+  labs(x = "Nota en Matemáticas", y = "Nota en Ciencias")
+
+ggplotly(grafico_dispersion, tooltip = c("x", "y"))
+```
+### 3. El Diagrama de Cajas
+El diagrama de cajas nos permite ver la distribución de las notas en tres asignaturas clave. La línea central de cada caja representa la mediana de la clase:
+```{r grafico-boxplot, echo=FALSE, warning=FALSE, message=FALSE}
+# Usamos plotly para crear boxplots interactivos muy fácilmente
+plot_ly(datos_clase, y = ~Matematicas, type = "box", name = "Matemáticas") %>%
+  add_trace(y = ~Lengua, name = "Lengua") %>%
+  add_trace(y = ~Ciencias, name = "Ciencias") %>%
+  layout(title = "Distribución de Notas por Asignatura", 
+         yaxis = list(title = "Nota obtenida"))
+```
+
